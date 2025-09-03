@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "500835004512",
+    "project_id": "apptrain-c6b98",
+    "storage_bucket": "apptrain-c6b98.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:500835004512:android:adb44a4466e01f46b19305",
+        "android_client_info": {
+          "package_name": "com.example.app_train"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDg3LQ2abYwzbvg5fn9oEGLsqSexDaR274"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
