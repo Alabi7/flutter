@@ -1,0 +1,88 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "appa",
+            "cwd": "appa",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "appa (profile mode)",
+            "cwd": "appa",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "appa (release mode)",
+            "cwd": "appa",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "app_train",
+            "cwd": "app_train",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "app_train (profile mode)",
+            "cwd": "app_train",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "app_train (release mode)",
+            "cwd": "app_train",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "device_apps",
+            "cwd": "appa\\plugins\\device_apps",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "device_apps (profile mode)",
+            "cwd": "appa\\plugins\\device_apps",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "device_apps (release mode)",
+            "cwd": "appa\\plugins\\device_apps",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "example",
+            "cwd": "appa\\plugins\\device_apps\\example",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "example (profile mode)",
+            "cwd": "appa\\plugins\\device_apps\\example",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "example (release mode)",
+            "cwd": "appa\\plugins\\device_apps\\example",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}

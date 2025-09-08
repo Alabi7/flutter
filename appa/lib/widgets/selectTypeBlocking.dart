@@ -1,4 +1,5 @@
-import 'package:appa/pages/appChoiceBlocking.dart';
+// import 'package:appa/pages/appChoiceBlocking.dart';
+import 'package:appa/pages/appOverviewScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -48,8 +49,9 @@ class SelectTypeBlocking extends StatelessWidget {
           ),
 
           const SizedBox(height: 30),
+          
 
-
+/*
           // ligne cliquable
           ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 8),
@@ -63,7 +65,8 @@ class SelectTypeBlocking extends StatelessWidget {
               if (!context.mounted) return;
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => const AppChoiceBlocking(mode: BlockingMode.now),
+                  // builder: (_) => const AppChoiceBlocking(mode: BlockingMode.now),
+                  builder: (_) => const AppOverviewScreen(),
                 ),
               );
             },
@@ -83,7 +86,8 @@ class SelectTypeBlocking extends StatelessWidget {
               if (!context.mounted) return;
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => const AppChoiceBlocking(mode: BlockingMode.schedule),
+                  // builder: (_) => const AppChoiceBlocking(mode: BlockingMode.schedule),
+                  builder: (_) => const AppOverviewScreen(),
                 ),
               );
             },
@@ -93,7 +97,7 @@ class SelectTypeBlocking extends StatelessWidget {
 
           const SizedBox(height: 20),
          
-
+*/
 
         ],
       ),
