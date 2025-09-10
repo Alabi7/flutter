@@ -2,7 +2,7 @@ name: appb
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -31,13 +31,48 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
+  # Gestion d'état
+  provider: ^6.1.2
+  
+  # Base de données locale
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  
+  # Notifications
+  flutter_local_notifications: ^17.2.3
+  
+  # Alarmes système (Android uniquement)
+  android_alarm_manager_plus: ^4.0.3
+  
+  # Permissions
+  permission_handler: ^11.3.1
+  
+  # Audio
+  audioplayers: ^6.1.0
+  
+  # Vibrations - version compatible
+  vibration: ^1.7.7
+  
+  # Services en arrière-plan
+  flutter_background_service: ^5.0.5
+  workmanager: ^0.5.2
+  
+  # Alternative à wakelock (plus moderne)
+  screen_brightness: ^1.0.1
+  device_info_plus: ^10.1.2
+  
+  # Utilitaires
+  uuid: ^4.5.1
+  intl: ^0.19.0
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.13
+  
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -51,7 +86,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
