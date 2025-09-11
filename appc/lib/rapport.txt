@@ -1,0 +1,18 @@
+
+
+lib/
+├── main.dart                    # Point d'entrée de l'app
+├── config/
+│   └── theme.dart              # Configuration du thème
+├── screens/
+│   ├── main_screen.dart        # Écran principal avec navigation
+│   ├── alarm_screen.dart       # Page Alarm
+│   ├── routine_screen.dart     # Page Routine  
+│   ├── focus_screen.dart       # Page Focus
+│   └── report_screen.dart      # Page Report
+├── widgets/
+│   ├── custom_bottom_navigation.dart  # Navbar personnalisée
+│   └── page_template.dart      # Template réutilisable
+└── utils/
+    ├── colors.dart             # Couleurs de l'app
+    └── constants.dart          # Constantes globales
