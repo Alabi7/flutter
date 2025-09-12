@@ -49,7 +49,7 @@ class CustomHeader extends StatelessWidget implements PreferredSizeWidget {
                   // Badge PRO
                   Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 13,
+                      horizontal: 10,
                       vertical: 5,
                     ),
                     decoration: BoxDecoration(
@@ -82,10 +82,14 @@ class CustomHeader extends StatelessWidget implements PreferredSizeWidget {
                   
                   // Icône utilisateur
                   Container(
-                    width: 40,
-                    height: 40,
+                    width: 35,
+                    height: 35,
                     decoration: BoxDecoration(
                       color: Colors.grey[200],
+                      border: Border.all(
+                        color: const Color.fromARGB(150, 46, 46, 46), // couleur de la bordure
+                        width: 0.5,     
+                      ),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
