@@ -1,33 +1,39 @@
 import 'package:flutter/material.dart';
-import '../widgets/page_template.dart';
+import '../widgets/custom_header.dart';
+import '../widgets/new_alarm_button.dart';
+import '../utils/colors.dart';
 
 class AlarmScreen extends StatelessWidget {
+  const AlarmScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return PageTemplate(
-      title: 'Alarm', // Le titre s'affichera dans le header
-      icon: Icons.alarm,
-      description: 'Gérez vos alarmes ici',
-      content: _buildAlarmContent(),
-    );
-  }
+    final bottomInset = MediaQuery.of(context).padding.bottom;
 
-  Widget _buildAlarmContent() {
-    return Column(
-      children: [
-        Text(
-          'Fonctionnalités à venir :',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
+    return Scaffold(
+      backgroundColor: AppColors.backgroundColor,
+      appBar: const CustomHeader(title: 'Alarm'),
+
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.alarm, size: 80, color: AppColors.primary),
+            const SizedBox(height: 20),
+            Text(
+              'Aucune alarme configurée',
+              style: TextStyle(fontSize: 18, color: AppColors.textSecondary),
+            ),
+          ],
         ),
-        SizedBox(height: 10),
-        Text('• Créer des alarmes personnalisées'),
-        Text('• Défis pour se réveiller'),
-        Text('• Sons d\'alarme variés'),
-        Text('• Répétition et snooze'),
-      ],
+      ),
+
+      // 👉 Ton NewAlarmButton est placé en bas à droite
+      floatingActionButton: Padding(
+        padding: EdgeInsets.only(bottom: bottomInset), // remonte au-dessus de la navbar
+        child: const NewAlarmButton(),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

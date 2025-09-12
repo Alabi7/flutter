@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../utils/colors.dart';
 
 class CustomHeader extends StatelessWidget implements PreferredSizeWidget {
@@ -14,6 +15,14 @@ class CustomHeader extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    // Configuration pour les icônes de statut noires
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent, // Fond transparent
+      statusBarIconBrightness: Brightness.dark, // Icônes noires
+      statusBarBrightness: Brightness.light, // Pour iOS
+    ));
+
     return Container(
       height: preferredSize.height + MediaQuery.of(context).padding.top,
       decoration: BoxDecoration(

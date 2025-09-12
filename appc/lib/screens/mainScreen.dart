@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widgets/custom_bottom_navigation.dart';
+import '../widgets/navbar.dart';
 import 'alarmScreen.dart';
 import 'routineScreen.dart';
 import 'focusScreen.dart';
