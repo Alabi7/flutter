@@ -14,18 +14,21 @@ class AlarmScreen extends StatelessWidget {
       backgroundColor: AppColors.backgroundColor,
       appBar: const CustomHeader(title: 'Alarm'),
 
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.alarm, size: 80, color: AppColors.primary),
-            const SizedBox(height: 20),
-            Text(
-              'Aucune alarme configurée',
-              style: TextStyle(fontSize: 18, color: AppColors.textSecondary),
-            ),
-          ],
-        ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Icon(Icons.alarm, size: 80, color: AppColors.primary),
+          const SizedBox(height: 20),
+          Text(
+            'Aucune alarme configurée',
+            style: TextStyle(fontSize: 18, color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 20),
+          Container(
+            height: 400,
+            color: Colors.redAccent,
+          ),
+        ],
       ),
 
       // 👉 Ton NewAlarmButton est placé en bas à droite
