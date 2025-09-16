@@ -19,7 +19,7 @@ class NewAlarmButton extends StatelessWidget {
       child: const Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.add, size: 20),
+          Icon(Icons.add, size: 20, color: Colors.white,),
           SizedBox(width: 3),
           Text(
             'New Alarm',

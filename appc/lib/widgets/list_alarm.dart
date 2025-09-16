@@ -1,6 +1,10 @@
+import 'package:appc/screens/settingAlarmScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../utils/colors.dart';
+import 'alarmSetting/timePickerv2.dart';
+
+
 
 class ListAlarm extends StatelessWidget {
   const ListAlarm({super.key});
@@ -44,7 +48,7 @@ class ListAlarm extends StatelessWidget {
               ),
             ),
           ),
-
+          
           const SizedBox(height: 20),
 
           // Liste des options
@@ -71,7 +75,9 @@ class ListAlarm extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right, color: Colors.black45),
             onTap: () {
               Navigator.pop(context);
-              print("Alarm 1 sélectionnée");
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const SettingAlarmScreen()),
+              );
             },
           ),
 
@@ -100,7 +106,9 @@ class ListAlarm extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right, color: Colors.black45),
             onTap: () {
               Navigator.pop(context);
-              print("Alarm 2 sélectionnée");
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const TimePicker()),
+              );
             },
           ),
 
@@ -119,6 +127,7 @@ class ListAlarm extends StatelessWidget {
                 fontSize: 14,
               ),
             ),
+
             subtitle: const Text(
               "Alarme progressive avec sons naturels",
               style: TextStyle(
