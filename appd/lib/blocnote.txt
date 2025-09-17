@@ -1,0 +1,68 @@
+
+
+Future<bool> ensureUploadPermission(BuildContext context) async {
+  if (Platform.isIOS) {
+    // iOS : pour la photothèque (si tu prends médias depuis Photos)
+    final status = await Permission.photos.request();
+    if (status.isGranted) return true;
+    return _handleDenied(context, status,
+      title: 'Accès Photos requis',
+      message: 'Autorise l’accès à ta photothèque pour importer des fichiers.');
+  }
+
+  // ANDROID
+  final sdk = (await DeviceInfoPlugin().androidInfo).version.sdkInt;
+  if (sdk >= 33) {
+    // Android 13+ : demander médias ciblés
+    final statuses = await [
+      Permission.audio,
+      Permission.photos,
+      Permission.videos,
+    ].request();
+
+    final granted = statuses.values.any((s) => s.isGranted);
+    if (granted) return true;
+
+    final permDenied = statuses.values.any((s) => s.isPermanentlyDenied);
+    if (permDenied) {
+      final go = await _askOpenSettings(
+        context,
+        title: 'Accès aux médias requis',
+        message: 'Active l’autorisation dans les réglages pour importer des fichiers.',
+      );
+      if (go == true) await openAppSettings();
+    }
+    return false;
+  } else {
+    // Android 12 et moins : STORAGE classique
+    final status = await Permission.storage.request();
+    if (status.isGranted) return true;
+    return _handleDenied(context, status,
+      title: 'Accès stockage requis',
+      message: 'Active l’autorisation de stockage pour importer des fichiers.');
+  }
+}
+
+Future<bool> _handleDenied(BuildContext context, PermissionStatus status,
+    {required String title, required String message}) async {
+  if (status.isPermanentlyDenied && context.mounted) {
+    final go = await _askOpenSettings(context, title: title, message: message);
+    if (go == true) await openAppSettings();
+  }
+  return false;
+}
+
+Future<bool?> _askOpenSettings(BuildContext context,
+    {required String title, required String message}) {
+  return showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Annuler')),
+        TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Ouvrir les réglages')),
+      ],
+    ),
+  );
+}
