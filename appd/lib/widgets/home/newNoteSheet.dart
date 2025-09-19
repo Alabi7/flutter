@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 
 /// Ouvre le bottom sheet "New Note"

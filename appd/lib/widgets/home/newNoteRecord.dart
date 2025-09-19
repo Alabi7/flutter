@@ -47,7 +47,7 @@ class NewNoteRecord extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Text('New Note', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                child: Text('New Record', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
               ),
             ),
             const SizedBox(height: 4),
