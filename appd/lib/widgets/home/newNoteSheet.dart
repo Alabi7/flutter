@@ -1,3 +1,4 @@
+import 'package:appd/widgets/pop-up/noConnection.dart';
 import 'package:flutter/material.dart';
 
 /// Ouvre le bottom sheet "New Note"
@@ -29,9 +30,11 @@ class NewNoteSheet extends StatelessWidget {
           children: [
             const SizedBox(height: 8),
             Container(
-              width: 44, height: 5,
+              width: 44,
+              height: 5,
               decoration: BoxDecoration(
-                color: Colors.black12, borderRadius: BorderRadius.circular(999),
+                color: Colors.black12,
+                borderRadius: BorderRadius.circular(999),
               ),
             ),
             const SizedBox(height: 12),
@@ -39,7 +42,10 @@ class NewNoteSheet extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Text('New Note', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                child: Text(
+                  'New Note',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                ),
               ),
             ),
             const SizedBox(height: 4),
@@ -48,25 +54,49 @@ class NewNoteSheet extends StatelessWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(8, 8, 8, 16),
-              itemBuilder: (_, i) => NewNoteItem(
-                icon: const [
-                  Icons.graphic_eq_rounded,
-                  Icons.library_music_outlined,
-                  Icons.ondemand_video_rounded
-                ][i],
-                color: const [Color(0xFF567DF4), Color(0xFFF5A524), Color(0xFFE85D75)][i],
-                title: const ['Record Audio', 'Upload Audio', 'Use Youtube video'][i],
-                subtitle: const [
-                  'Instantly record and save your thoughts',
-                  'Import existing audio files seamlessly',
-                  'Turn videos into organized notes'
-                ][i],
-                onTap: () {
-                  Navigator.pop(context);
-                  // TODO: navigate to the corresponding flow
-                },
-              ),
-              separatorBuilder: (_, __) => Divider(color: Colors.black12, height: 1),
+              itemBuilder:
+                  (_, i) => NewNoteItem(
+                    icon:
+                        const [
+                          Icons.graphic_eq_rounded,
+                          Icons.library_music_outlined,
+                          Icons.ondemand_video_rounded,
+                        ][i],
+                    color:
+                        const [
+                          Color(0xFF567DF4),
+                          Color(0xFFF5A524),
+                          Color(0xFFE85D75),
+                        ][i],
+                    title:
+                        const [
+                          'Record Audio',
+                          'Upload Audio',
+                          'Use Youtube video',
+                        ][i],
+                    subtitle:
+                        const [
+                          'Instantly record and save your thoughts',
+                          'Import existing audio files seamlessly',
+                          'Turn videos into organized notes',
+                        ][i],
+                    onTap: () {
+                      if (i == 0) {
+                        Navigator.pop(context);
+                        showNoConnectionDialog(context);
+                      } else if (i == 1) {
+                        Navigator.pop(context);
+                        debugPrint('2');
+                      } else {
+                        Navigator.pop(context);
+                        debugPrint(
+                          '3',
+                        ); // TODO: flux YouTube (pas de permission spéciale ici)
+                      }
+                    },
+                  ),
+              separatorBuilder:
+                  (_, __) => Divider(color: Colors.black12, height: 1),
               itemCount: 3,
             ),
           ],
