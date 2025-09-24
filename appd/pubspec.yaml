@@ -37,7 +37,17 @@ dependencies:
   google_fonts: ^6.1.0
   permission_handler: ^12.0.1
   # device_info_plus: ^12.1.0
+
+  # -----connection & database ---------
   supabase_flutter: ^2.10.1
+  connectivity_plus: ^7.0.0
+
+  # -------------reccord----------------
+  record: ^6.1.1
+  just_audio: ^0.10.5
+  path_provider: ^2.1.1
+  audio_waveforms: ^1.3.0
+  waveform_flutter: ^1.2.0
 
 #
 #
@@ -62,6 +72,9 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  assets:
+    - assets/images/google24px.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

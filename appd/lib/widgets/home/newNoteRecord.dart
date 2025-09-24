@@ -1,9 +1,12 @@
 import 'package:appd/configs/permissions.dart';
+import 'package:appd/screens/recordings_list_screen.dart';
+import 'package:appd/widgets/record/audioRecord.dart';
 import 'package:flutter/material.dart';
 
 /// Ouvre le bottom sheet "Record"
 Future<void> showNewNoteRecord(BuildContext context, {int? initialIndex}) {
-  return showModalBottomSheet( // <-- corrigé ici
+  return showModalBottomSheet(
+    // <-- corrigé ici
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.white,
@@ -37,9 +40,11 @@ class NewNoteRecord extends StatelessWidget {
           children: [
             const SizedBox(height: 8),
             Container(
-              width: 44, height: 5,
+              width: 44,
+              height: 5,
               decoration: BoxDecoration(
-                color: Colors.black12, borderRadius: BorderRadius.circular(999),
+                color: Colors.black12,
+                borderRadius: BorderRadius.circular(999),
               ),
             ),
             const SizedBox(height: 12),
@@ -47,7 +52,10 @@ class NewNoteRecord extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Text('New Record', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                child: Text(
+                  'New Record',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                ),
               ),
             ),
             const SizedBox(height: 4),
@@ -57,39 +65,61 @@ class NewNoteRecord extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(8, 8, 8, 16),
               itemCount: 3,
-              separatorBuilder: (_, __) => const Divider(color: Colors.black12, height: 1),
-              itemBuilder: (_, i) => NewNoteItem(
-                icon: const [
-                  Icons.graphic_eq_rounded,         // 0 : Record
-                  Icons.library_music_outlined,      // 1 : Upload
-                  Icons.ondemand_video_rounded       // 2 : YouTube
-                ][i],
-                color: const [Color(0xFF567DF4), Color(0xFFF5A524), Color(0xFFE85D75)][i],
-                title: const ['Record Audio', 'Upload Audio', 'Use Youtube video'][i],
-                subtitle: const [
-                  'Instantly record and save your thoughts',
-                  'Import existing audio files seamlessly',
-                  'Turn videos into organized notes'
-                ][i],
-                onTap: () async {
-                  if (i == 0) {
-                    // Record -> demander le micro
-                    final ok = await ensureMicPermission(context);
-                    if (!ok) return;
-                    Navigator.pop(context);
-                    debugPrint('1'); // TODO: démarrer l’enregistreur
-                  } else if (i == 1) {
-                    // Upload -> demander accès fichiers/médias
-                    final ok = await ensureUploadAudioPermission(context);
-                    if (!ok) return;
-                    Navigator.pop(context);
-                    debugPrint('2'); // TODO: ouvrir le file picker
-                  } else {
-                    Navigator.pop(context);
-                    debugPrint('3'); // TODO: flux YouTube (pas de permission spéciale ici)
-                  }
-                },
-              ),
+              separatorBuilder:
+                  (_, __) => const Divider(color: Colors.black12, height: 1),
+              itemBuilder:
+                  (_, i) => NewNoteItem(
+                    icon:
+                        const [
+                          Icons.graphic_eq_rounded, // 0 : Record
+                          Icons.library_music_outlined, // 1 : Upload
+                          Icons.ondemand_video_rounded, // 2 : YouTube
+                        ][i],
+                    color:
+                        const [
+                          Color(0xFF567DF4),
+                          Color(0xFFF5A524),
+                          Color(0xFFE85D75),
+                        ][i],
+                    title:
+                        const [
+                          'Record Audio',
+                          'Upload Audio',
+                          'Use Youtube video',
+                        ][i],
+                    subtitle:
+                        const [
+                          'Instantly record and save your thoughts',
+                          'Import existing audio files seamlessly',
+                          'Turn videos into organized notes',
+                        ][i],
+                    onTap: () async {
+                      if (i == 0) {
+                        // Record -> demander le micro
+                        final ok = await ensureMicPermission(context);
+                        if (!ok) return;
+                        Navigator.pop(context);
+                        debugPrint('1');
+                        // TODO: démarrer l’enregistreur
+                        showAudioRecord(context);
+                      } else if (i == 1) {
+                        // Upload -> demander accès fichiers/médias
+                        final ok = await ensureUploadAudioPermission(context);
+                        if (!ok) return;
+                        Navigator.pop(context);
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const RecordingsListScreen(),
+                          ),
+                        );
+                      } else {
+                        Navigator.pop(context);
+                        debugPrint(
+                          '3',
+                        ); // TODO: flux YouTube (pas de permission spéciale ici)
+                      }
+                    },
+                  ),
             ),
           ],
         ),

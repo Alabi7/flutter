@@ -1,6 +1,6 @@
-import 'package:appd/widgets/home/navbar.dart';
+import 'package:appd/widgets/home/homeNavbar.dart';
 import 'package:flutter/material.dart';
-import '../widgets/home/header.dart';
+import '../widgets/home/homeHeader.dart';
 import '../utils/colors.dart';
 
 class MainScreen extends StatelessWidget {
@@ -22,3 +22,7 @@ class MainScreen extends StatelessWidget {
     );
   }
 }
+
+
+
+

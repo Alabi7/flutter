@@ -66,3 +66,4 @@ Future<bool?> _askOpenSettings(BuildContext context,
     ),
   );
 }
+

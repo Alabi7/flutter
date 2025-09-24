@@ -1,6 +1,8 @@
+// import 'package:appd/screens/profileScreen.dart';
 import 'package:flutter/material.dart';
 import '../../utils/colors.dart';
 // import 'package:google_fonts/google_fonts.dart';
+
 
 /// AppBar du home (publique pour pouvoir l'importer partout)
 class HomeHeader extends StatelessWidget implements PreferredSizeWidget {
@@ -11,35 +13,40 @@ class HomeHeader extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    // print('Police du thème: ${Theme.of(context).textTheme.titleLarge?.fontFamily}');
     return AppBar(
       elevation: 0,
       scrolledUnderElevation: 0,
-      // backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       backgroundColor: Colors.white,
       centerTitle: false,
-      title: const Padding(
-        padding: EdgeInsets.only(left: 4),
+      title: Padding(
+        padding: const EdgeInsets.only(left: 4),
         child: Text(
           'Mynote AI',
           style: TextStyle(
-            fontSize: 21, 
-            fontWeight: FontWeight.bold, 
+            fontSize: 21,
+            fontWeight: FontWeight.bold,
             color: AppColors.textPrimary,
-            fontFamily: 'Roboto'
-          
+            fontFamily: 'Roboto',
           ),
         ),
       ),
-      actions: const [
+      actions: [
         Padding(
-          padding: EdgeInsets.only(right: 8),
+          padding: const EdgeInsets.only(right: 8),
           child: ProBadge(onPressed: _noop),
         ),
-        SizedBox(width: 6),
+        const SizedBox(width: 6),
         Padding(
-          padding: EdgeInsets.only(right: 12),
-          child: UserBubble(onPressed: _noop),
+          padding: const EdgeInsets.only(right: 12),
+          child: UserBubble(
+            onPressed: () {
+              // Navigator.of(context).push(
+              //   MaterialPageRoute(
+              //     builder: (_) => const ProfileScreen(),
+              //   ),
+              // );
+            },
+          ),
         ),
       ],
     );
@@ -49,7 +56,7 @@ class HomeHeader extends StatelessWidget implements PreferredSizeWidget {
 // Petite fonction no-op pour l’exemple (évite d’avoir à passer une callback partout)
 void _noop() {}
 
-/// Badge PRO (tu peux le rendre privé si utilisé uniquement ici)
+/// Badge PRO
 class ProBadge extends StatelessWidget {
   final VoidCallback onPressed;
   const ProBadge({super.key, required this.onPressed});
@@ -76,8 +83,8 @@ class ProBadge extends StatelessWidget {
                   color: AppColors.white,
                   fontWeight: FontWeight.w900,
                   fontSize: 12,
-                  fontFamily: 'Roboto'
-                )
+                  fontFamily: 'Roboto',
+                ),
               ),
             ],
           ),
@@ -97,11 +104,11 @@ class UserBubble extends StatelessWidget {
     return Material(
       color: AppColors.white,
       shape: const CircleBorder(
-      side: BorderSide(
-        color: AppColors.borderPrimary ,  // Couleur de la bordure
-        width: 1.0,          // Épaisseur de la bordure
+        side: BorderSide(
+          color: AppColors.borderPrimary,
+          width: 1.0,
+        ),
       ),
-    ),
       elevation: 0,
       child: InkWell(
         customBorder: const CircleBorder(),
@@ -115,5 +122,3 @@ class UserBubble extends StatelessWidget {
     );
   }
 }
-
-
