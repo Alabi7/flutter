@@ -40,8 +40,8 @@ class PillButton extends StatelessWidget { // ← Enlever le _
                 label,
                 style: TextStyle(
                   color: foreground,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],

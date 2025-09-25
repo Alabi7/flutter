@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:appd/common/gappedCircleButton.dart';
-import 'package:appd/common/waveRecord.dart';
+// import 'package:appd/common/waveRecord.dart';
+// import 'package:appd/common/waveRecord3.dart';
 import 'package:flutter/material.dart';
 import 'package:appd/common/circleButton.dart';
 // import 'package:appd/common/gappedCircleButton.dart' 
@@ -126,7 +127,7 @@ class _AudioRecordState extends State<AudioRecord> with TickerProviderStateMixin
                   ),
 
                   const SizedBox(height: 30),
-                                    
+                    /*                
                   Container(
                     height: 115,
                     width: double.infinity,
@@ -143,7 +144,21 @@ class _AudioRecordState extends State<AudioRecord> with TickerProviderStateMixin
                       idleMessage: 'Tap to start recording',
                       pauseMessage: 'Recording paused',
                     ),
+                  ),*/
+
+                  const SizedBox(height: 20),
+/*
+                  Container(
+                    height: 115,
+                    width: double.infinity,
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    child: WaveRecordInline(
+                      recorder: _session.audio.recorder,                   // le même AudioRecorder !
+                      recording: _session.phase.value == RecordingPhase.recording,
+                      paused:    _session.phase.value == RecordingPhase.paused,
+                    ),
                   ),
+  */                
 
                   const SizedBox(height: 20),
 
