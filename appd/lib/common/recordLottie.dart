@@ -87,12 +87,12 @@ void _syncPlayback() {
         .whenComplete(() {
       if (!mounted || !widget.isRecording) return;
       // b) Puis on boucle 0 → 1 → 0 → 1... (sans “saut”)
-      _ctrl.repeat(min: 0.0, max: 1.0, period: period);
+      _ctrl.repeat(min: 0.0, max: 1.0, reverse: true, period: period);
     });
   } else {
     // Déjà en bout ou au début : démarre la boucle normale 0 → 1
     _ctrl.stop(canceled: false);
-    _ctrl.repeat(min: 0.0, max: 1.0, period: period);
+    _ctrl.repeat(min: 0.0, max: 1.0, reverse: true, period: period);
   }
 }
 

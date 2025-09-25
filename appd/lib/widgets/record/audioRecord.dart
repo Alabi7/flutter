@@ -127,7 +127,7 @@ class _AudioRecordState extends State<AudioRecord> with TickerProviderStateMixin
                     ],
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 25),
                
                   SizedBox(
                     height: 115,
