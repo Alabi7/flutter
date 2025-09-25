@@ -3,6 +3,17 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:record/record.dart';
 
+/*Container(
+  height: 115,
+  width: double.infinity,
+  margin: const EdgeInsets.symmetric(horizontal: 16),
+  child: WaveRecordInline(
+    recorder: _session.audio.recorder,                   // le même AudioRecorder !
+    recording: _session.phase.value == RecordingPhase.recording,
+    paused:    _session.phase.value == RecordingPhase.paused,
+  ),
+),*/ 
+
 /// Bulle de chat BLEUE avec waveform blanche + "playhead" central.
 /// - recording: animation en temps réel (depuis `record`).
 /// - paused   : tracé figé.

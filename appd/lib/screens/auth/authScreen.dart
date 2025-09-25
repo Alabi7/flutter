@@ -87,94 +87,129 @@ class AuthScreen extends StatelessWidget {
         )
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 60),
-              const Text(
-                'Access Smart Noter\nAnywhere',
-                style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, height: 1.2),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'Sign in or sign up to sync your notes, transcripts, and insights across all your devices.',
-                style: TextStyle(fontSize: 16, color: Colors.grey[600], height: 1.5),
-              ),
-              const SizedBox(height: 60),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight( // permet à Column d’occuper minHeight et de scroller si besoin
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // ====== Bloc haut ======
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 32),
 
-              // Bouton Google (SVG local, pas de réseau requis)
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: OutlinedButton.icon(
-                  onPressed: () => _signInWithGoogle(context),
-                  icon: Image.asset('assets/images/google24px.png', width: 24, height:24 ),
-                  label: const Text(
-                    'Continue with Google',
-                    style: TextStyle(fontSize: 16, color: Colors.black87, fontWeight: FontWeight.w500),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    side: BorderSide(color: Colors.grey[300]!),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          // Titre responsive (rétrécit si largeur étroite)
+                          FittedBox(
+                            alignment: Alignment.centerLeft,
+                            fit: BoxFit.scaleDown,
+                            child: const Text(
+                              'Access Smart Noter\nAnywhere',
+                              style: TextStyle(
+                                fontSize: 40, fontWeight: FontWeight.bold, height: 1.2),
+                            ),
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          Text(
+                            'Sign in or sign up to sync your notes, transcripts, and insights across all your devices.',
+                            style: TextStyle(
+                              fontSize: 16, color: Colors.grey[600], height: 1.5),
+                          ),
+
+                          const SizedBox(height: 32),
+
+                          // Google
+                          SizedBox(
+                            width: double.infinity,
+                            height: 52,
+                            child: OutlinedButton.icon(
+                              onPressed: () => _signInWithGoogle(context),
+                              icon: Image.asset('assets/images/google24px.png', width: 24, height: 24),
+                              label: const Text(
+                                'Continue with Google',
+                                style: TextStyle(fontSize: 16, color: Colors.black87, fontWeight: FontWeight.w500),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                side: BorderSide(color: Colors.grey[300]!),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          // or
+                          Row(
+                            children: [
+                              Expanded(child: Divider(color: Colors.grey[300])),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                child: Text('or', style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+                              ),
+                              Expanded(child: Divider(color: Colors.grey[300])),
+                            ],
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          // Email
+                          SizedBox(
+                            width: double.infinity,
+                            height: 52,
+                            child: OutlinedButton(
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (_) => const SignupScreen()));
+                              },
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                side: BorderSide(color: Colors.grey[300]!),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                              child: Icon(Icons.mail_outline, color: Colors.grey[700], size: 24),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // ====== Bloc bas (collé en bas si assez de place, sinon part dans le scroll) ======
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 24),
+                        child: Center(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text('Already have an account? ',
+                                  style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
+                                },
+                                child: const Text(
+                                  'Login',
+                                  style: TextStyle(color: Colors.blue, fontSize: 14, fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-
-              const SizedBox(height: 32),
-
-              Row(
-                children: [
-                  Expanded(child: Divider(color: Colors.grey[300])),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text('or', style: TextStyle(color: Colors.grey[600], fontSize: 14)),
-                  ),
-                  Expanded(child: Divider(color: Colors.grey[300])),
-                ],
-              ),
-
-              const SizedBox(height: 32),
-
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: OutlinedButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const SignupScreen()));
-                  },
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    side: BorderSide(color: Colors.grey[300]!),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  child: Icon(Icons.mail_outline, color: Colors.grey[700], size: 28),
-                ),
-              ),
-
-              const Spacer(),
-
-              Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('Already have an account? ', style: TextStyle(color: Colors.grey[600], fontSize: 14)),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
-                      },
-                      child: const Text('Login', style: TextStyle(color: Colors.blue, fontSize: 14, fontWeight: FontWeight.w600)),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 40),
-            ],
-          ),
+            );
+          },
         ),
       ),
+
     );
   }
 }

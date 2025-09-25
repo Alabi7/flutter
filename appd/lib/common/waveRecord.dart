@@ -10,6 +10,26 @@ import 'package:record/record.dart';
 ///
 /// IMPORTANT: passer le *même* AudioRecorder que celui utilisé pour l'enregistrement
 /// (ex: _session.audio.recorder), sinon conflit d'accès au micro.
+/// 
+/*Container(
+  height: 115,
+  width: double.infinity,
+  margin: const EdgeInsets.symmetric(horizontal: 16),
+  child: WaveRecord(
+    recorder: _session.audio.recorder,        // 👈 ajoute ce param
+    isRecording: _session.phase.value == RecordingPhase.recording,
+    isPaused: _session.phase.value == RecordingPhase.paused,
+    waveColor: Colors.indigo,
+    backgroundColor: Colors.grey[100]!,
+    scaleFactor: 0.8, // 0.8..1.5 selon rendu souhaité
+    
+
+    idleMessage: 'Tap to start recording',
+    pauseMessage: 'Recording paused',
+  ),
+),*/
+
+
 class WaveRecord extends StatefulWidget {
   const WaveRecord({
     super.key,

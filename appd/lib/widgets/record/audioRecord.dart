@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:appd/common/gappedCircleButton.dart';
+import 'package:appd/common/recordLottie.dart';
 // import 'package:appd/common/waveRecord.dart';
 // import 'package:appd/common/waveRecord3.dart';
 import 'package:flutter/material.dart';
@@ -126,41 +127,19 @@ class _AudioRecordState extends State<AudioRecord> with TickerProviderStateMixin
                     ],
                   ),
 
-                  const SizedBox(height: 30),
-                    /*                
-                  Container(
-                    height: 115,
-                    width: double.infinity,
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    child: WaveRecord(
-                      recorder: _session.audio.recorder,        // 👈 ajoute ce param
-                      isRecording: _session.phase.value == RecordingPhase.recording,
-                      isPaused: _session.phase.value == RecordingPhase.paused,
-                      waveColor: Colors.indigo,
-                      backgroundColor: Colors.grey[100]!,
-                      scaleFactor: 0.8, // 0.8..1.5 selon rendu souhaité
-                      
-
-                      idleMessage: 'Tap to start recording',
-                      pauseMessage: 'Recording paused',
-                    ),
-                  ),*/
-
                   const SizedBox(height: 20),
-/*
-                  Container(
+               
+                  SizedBox(
                     height: 115,
                     width: double.infinity,
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    child: WaveRecordInline(
-                      recorder: _session.audio.recorder,                   // le même AudioRecorder !
-                      recording: _session.phase.value == RecordingPhase.recording,
-                      paused:    _session.phase.value == RecordingPhase.paused,
+                    child: RecordLottie(
+                      isRecording: _session.phase.value == RecordingPhase.recording,
+                      isPaused:    _session.phase.value == RecordingPhase.paused,
+                      // asset: 'assets/animations/sphereAnimation1.json', // par défaut
                     ),
                   ),
-  */                
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
 
                   // Hint en idle uniquement
                   Visibility(

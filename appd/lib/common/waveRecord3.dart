@@ -95,6 +95,7 @@ class _WaveRecordState extends State<WaveRecord> {
         .listen((amp) {
       // LOGIQUE INCHANGÉE
       final db = amp.current;
+      // ignore: unnecessary_cast
       final clamped = db.isFinite ? db.clamp(-60.0, 0.0) as double : -60.0;
       double norm = (clamped + 60.0) / 60.0; // 0..1
       norm = (norm * widget.scaleFactor).clamp(0.0, 1.0);
