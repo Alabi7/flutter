@@ -1,5 +1,6 @@
 import 'package:appd/configs/permissions.dart';
 import 'package:appd/screens/recordings_list_screen.dart';
+import 'package:appd/widgets/pop-up/uploadingFiles.dart';
 import 'package:appd/widgets/record/audioRecord.dart';
 import 'package:flutter/material.dart';
 
@@ -117,7 +118,15 @@ class NewNoteRecord extends StatelessWidget {
                         debugPrint(
                           '3',
                         ); // TODO: flux YouTube (pas de permission spéciale ici)
-                      }
+                        showUploadingDialog(
+                          context: context,
+                          uploadFuture: Future.delayed(
+                            const Duration(seconds: 2),
+                            () => 'uploads/test/success.m4a',
+                          ),
+                          localPath: 'local/test.m4a',
+                        );
+                                          }
                     },
                   ),
             ),

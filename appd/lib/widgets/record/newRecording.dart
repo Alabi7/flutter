@@ -1,366 +1,246 @@
-import 'dart:math' as math;
-
-import 'package:flutter/material.dart';
 import 'dart:async';
-import 'dart:math';
+import 'dart:io';
+import 'package:appd/common/gappedCircleButton.dart';
+import 'package:appd/common/recordLottie.dart';
+// import 'package:appd/common/waveRecord.dart';
+// import 'package:appd/common/waveRecord3.dart';
+import 'package:flutter/material.dart';
+import 'package:appd/common/circleButton.dart';
+// import 'package:appd/common/gappedCircleButton.dart' 
+import 'package:appd/controllers/audio/recording_session.dart';
+import 'package:appd/controllers/audio/audio_capture_controller.dart'; // RecordingPhase
+import 'package:uuid/uuid.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-enum RecordingState {
-  idle,        // État 1 : Avant enregistrement
-  recording,   // État 2 : En cours d'enregistrement
-  paused       // État 3 : En pause avec options
+
+
+Future<void> showAudioRecord(BuildContext context) {
+  return showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (_) => const AudioRecord(),
+  );
 }
 
-class AudioRecorderWidget extends StatefulWidget {
-  const AudioRecorderWidget({super.key});
-
+class AudioRecord extends StatefulWidget {
+  const AudioRecord({super.key});
   @override
-  State<AudioRecorderWidget> createState() => _AudioRecorderWidgetState();
+  State<AudioRecord> createState() => _AudioRecordState();
 }
 
-class _AudioRecorderWidgetState extends State<AudioRecorderWidget>
-    with TickerProviderStateMixin {
-  RecordingState _currentState = RecordingState.idle;
-  
-  // Timer et durée
-  Timer? _timer;
-  Duration _recordingDuration = Duration.zero;
-  
-  // Animation pour la forme d'onde
-  late AnimationController _waveController;
-  late Animation<double> _waveAnimation;
-  
-  // Données de la forme d'onde (simulées)
-  List<double> _waveformData = [];
-  final Random _random = Random();
+class _AudioRecordState extends State<AudioRecord> with TickerProviderStateMixin {
+  bool _closing = false; // ← gèle l’UI pendant la fermeture
+  bool _uploading = false; // Nouvel état pour l'upload
+  late final RecordingSession _session;
+  late final AnimationController _blink; // pour le point rouge clignotant
+
 
   @override
   void initState() {
     super.initState();
-    _initializeAnimations();
-  }
+    // null => chronomètre ; mets une Duration pour un compte à rebours
+    _session = RecordingSession(countdownFrom: null);
 
-  void _initializeAnimations() {
-    _waveController = AnimationController(
-      duration: const Duration(milliseconds: 100),
-      vsync: this,
-    );
-    
-    _waveAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(_waveController);
+    _blink = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
+
+    // anime/stoppe le clignotement selon la phase
+    _session.phase.addListener(() {
+      final p = _session.phase.value;
+      if (p == RecordingPhase.recording) {
+        _blink.repeat(reverse: true);
+      } else {
+        _blink.stop();
+        _blink.value = 1.0;
+      }
+      setState(() {}); // pour rafraîchir l'UI au changement de phase
+    });
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
-    _waveController.dispose();
+    _blink.dispose();
+    _session.dispose();
     super.dispose();
   }
 
-  // Démarrer l'enregistrement
-  void _startRecording() {
-    setState(() {
-      _currentState = RecordingState.recording;
-      _recordingDuration = Duration.zero;
-      _waveformData = [];
-    });
+  String _fmt(Duration d) {
+    final h = d.inHours.toString().padLeft(2,'0');
+    final m = d.inMinutes.remainder(60).toString().padLeft(2,'0');
+    final s = d.inSeconds.remainder(60).toString().padLeft(2,'0');
+    return '$h:$m:$s';
+  }
 
-    // Démarrer le timer
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        _recordingDuration = Duration(seconds: timer.tick);
-      });
+
+
+  // Fonction pour uploader le fichier sur Supabase
+  Future<String?> _uploadToSupabase(String localFilePath) async {
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) {
+        throw Exception('Utilisateur non connecté');
+      }
+
+      // Générer un ID unique pour la note
+      const uuid = Uuid();
+      final noteId = uuid.v4();
       
-      // Ajouter des données aléatoires à la forme d'onde
-      _generateWaveformData();
-    });
+      // Construire le chemin de destination
+      final fileName = '$noteId.m4a';
+      final storagePath = 'Ingest/audio/${user.id}/$fileName';
 
-    // Démarrer l'animation de la forme d'onde
-    _waveController.repeat();
-  }
+      // Lire le fichier local
+      final file = File(localFilePath);
+      final fileBytes = await file.readAsBytes();
 
-  // Mettre en pause
-  void _pauseRecording() {
-    setState(() {
-      _currentState = RecordingState.paused;
-    });
-    
-    _timer?.cancel();
-    _waveController.stop();
-  }
+      // Upload vers Supabase Storage
+      await Supabase.instance.client.storage
+          .from('Ingest') // nom de ton bucket (remplace si différent)
+          .uploadBinary(storagePath, fileBytes);
 
-  // Continuer l'enregistrement
-  void _continueRecording() {
-    setState(() {
-      _currentState = RecordingState.recording;
-    });
-    
-    // Reprendre le timer à partir de la durée actuelle
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        _recordingDuration += const Duration(seconds: 1);
-      });
-      _generateWaveformData();
-    });
-    
-    _waveController.repeat();
-  }
-
-  // Terminer l'enregistrement
-  void _finishRecording() {
-    _timer?.cancel();
-    _waveController.stop();
-    
-    // Ici tu peux sauvegarder l'audio
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Enregistrement terminé: ${_formatDuration(_recordingDuration)}'),
-      ),
-    );
-    
-    _resetRecording();
-  }
-
-  // Annuler l'enregistrement
-  void _cancelRecording() {
-    _timer?.cancel();
-    _waveController.stop();
-    _resetRecording();
-  }
-
-  // Reset à l'état initial
-  void _resetRecording() {
-    setState(() {
-      _currentState = RecordingState.idle;
-      _recordingDuration = Duration.zero;
-      _waveformData = [];
-    });
-  }
-
-  // Générer des données aléatoires pour la forme d'onde
-  void _generateWaveformData() {
-    if (_waveformData.length > 100) {
-      _waveformData.removeAt(0);
+      return storagePath; // Retourner le chemin pour référence
+    } catch (e) {
+      debugPrint('Erreur upload Supabase: $e');
+      rethrow;
     }
-    _waveformData.add(_random.nextDouble());
   }
 
-  // Formater la durée
-  String _formatDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, "0");
-    String hours = twoDigits(duration.inHours);
-    String minutes = twoDigits(duration.inMinutes.remainder(60));
-    String seconds = twoDigits(duration.inSeconds.remainder(60));
-    return "$hours:$minutes:$seconds";
-  }
 
   @override
   Widget build(BuildContext context) {
-    // return Scaffold(
-    //   backgroundColor: Colors.white,
-    //   body: SafeArea(
-    //     child: Column(
-    //       children: [
-    //         // En-tête avec petite barre
-    //         Padding(
-    //           padding: const EdgeInsets.only(top: 16),
-    //           child: Container(
-    //             width: 60,
-    //             height: 4,
-    //             decoration: BoxDecoration(
-    //               color: Colors.grey[400],
-    //               borderRadius: BorderRadius.circular(2),
-    //             ),
-    //           ),
-    //         ),
-            
-    //         const SizedBox(height: 32),
-            
-    //         // Titre
-    //         const Text(
-    //           'My Recording',
-    //           style: TextStyle(
-    //             fontSize: 28,
-    //             fontWeight: FontWeight.w600,
-    //             color: Colors.black,
-    //           ),
-    //         ),
-            
-    //         const SizedBox(height: 40),
-            
-    //         // Timer
-    //         _buildTimer(),
-            
-    //         const SizedBox(height: 60),
-            
-    //         // Zone de la forme d'onde
-    //         Expanded(child: _buildWaveformSection()),
-            
-    //         // Boutons en bas
-    //         Padding(
-    //           padding: const EdgeInsets.only(bottom: 40),
-    //           child: _buildActionButtons(),
-    //         ),
-    //       ],
-    //     ),
-    //   ),
-    // );
+    final phase = _closing
+      ? RecordingPhase.paused     // ← on reste visuellement sur bouton bleu
+      : _session.phase.value;
 
-    return SafeArea(
-      top: false,
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
+    // final phase = _session.phase.value;
+    final showSides = phase == RecordingPhase.paused; // review
+    final showHint  = phase == RecordingPhase.idle;
+
+    return Material(
+      color: Colors.white,
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      child: SafeArea(
+        top: false,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 8),
+            // ===== Header =====
             Container(
-              width: 44, height: 5,
-              decoration: BoxDecoration(
-                color: Colors.black12, borderRadius: BorderRadius.circular(999),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+              decoration: const BoxDecoration(
+                border: Border(bottom: BorderSide(color: Color(0x11000000), width: 1)),
+              ),
+              height: 62,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 45, height: 5,
+                      decoration: BoxDecoration(color: Colors.black12, borderRadius: BorderRadius.circular(999)),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Center(child: Text('My Recording', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600))),
+                ],
               ),
             ),
-            const SizedBox(height: 12),
-           
-            const SizedBox(height: 32),
-            
-            // Titre
-            const Text(
-              'My Recording',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
-              ),
-            ),
-            
-            const SizedBox(height: 40),
-            
-            // Timer
-            _buildTimer(),
-            
-            const SizedBox(height: 60),
-            
-            // Zone de la forme d'onde
-            Expanded(child: _buildWaveformSection()),
-            
-            // Boutons en bas
+
+            // ===== Contenu =====
             Padding(
-              padding: const EdgeInsets.only(bottom: 40),
-              child: _buildActionButtons(),
-            ),
+              padding: const EdgeInsets.only(bottom: 16, top: 12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Timer + indicateur
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildStatusIndicator(phase),
+                      const SizedBox(width: 8),
+                      ValueListenableBuilder<Duration>(
+                        valueListenable: _session.time,
+                        builder: (_, d, __) => Text(
+                          _fmt(d),
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w300, color: Colors.grey),
+                        ),
+                      ),
+                    ],
+                  ),
 
-          ],
-        ),
-      ),
-    );
+                  const SizedBox(height: 25),
+               
+                  SizedBox(
+                    height: 115,
+                    width: double.infinity,
+                    child: RecordLottie(
+                      isRecording: _session.phase.value == RecordingPhase.recording,
+                      isPaused:    _session.phase.value == RecordingPhase.paused,
+                      // asset: 'assets/animations/sphereAnimation1.json', // par défaut
+                    ),
+                  ),
 
+                  const SizedBox(height: 10),
 
+                  // Hint en idle uniquement
+                  Visibility(
+                    visible: showHint,
+                    maintainSize: true, maintainAnimation: true, maintainState: true,
+                    child: const Text(
+                      'Tap to start recording',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey),
+                    ),
+                  ),
 
+                  const SizedBox(height: 8),
 
+                  // ===== Boutons =====
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (showSides) ...[
+                        CircleButton(
+                          size: 54,
+                          circleColor: const Color(0xFFE5E7EB),
+                          border: const BorderSide(color: Colors.blueGrey, width: 1),
+                          icon: Icons.close_rounded,
+                          iconSize: 26,
+                          iconColor: const Color(0xFF6B7282),
+                          label: 'Cancel',
+                          labelWidth: 80,
+                          showLabel: true,
+                          onTap: () => _session.cancel(),
+                        ),
+                        const SizedBox(width: 20),
+                      ],
 
+                      // Centre (Switch rouge -> vert -> bleu)
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 180),
+                        child: _buildCenterButton(phase, key: ValueKey(phase)),
+                      ),
 
+                      if (showSides) ...[
+                        const SizedBox(width: 20),
+                        CircleButton(
+                          size: 54,
+                          circleColor: const Color(0xFFE5E7EB),
+                          border: const BorderSide(color: Colors.blueGrey, width: 1),
+                          icon: Icons.play_arrow_rounded,
+                          iconSize: 30,
+                          iconColor: const Color(0xFF6B7282),
+                          label: 'Continue',
+                          labelWidth: 80,
+                          showLabel: true,
+                          onTap: () => _session.resume(),
+                        ),
+                      ],
+                    ],
+                  ),
 
-
-  }
-
-  Widget _buildTimer() {
-    Color timerColor;
-    switch (_currentState) {
-      case RecordingState.idle:
-        timerColor = Colors.grey[600]!;
-        break;
-      case RecordingState.recording:
-        timerColor = Colors.red;
-        break;
-      case RecordingState.paused:
-        timerColor = Colors.grey[600]!;
-        break;
-    }
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (_currentState == RecordingState.recording) 
-          Container(
-            width: 8,
-            height: 8,
-            margin: const EdgeInsets.only(right: 12),
-            decoration: const BoxDecoration(
-              color: Colors.red,
-              shape: BoxShape.circle,
-            ),
-          ),
-        Text(
-          _formatDuration(_recordingDuration),
-          style: TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.w300,
-            color: timerColor,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildWaveformSection() {
-    if (_currentState == RecordingState.idle) {
-      return Center(
-        child: Text(
-          'Tap to start recording',
-          style: TextStyle(
-            fontSize: 18,
-            color: Colors.grey[600],
-          ),
-        ),
-      );
-    } else {
-      return Center(
-        child: Container(
-          height: 120,
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: CustomPaint(
-            painter: WaveformPainter(
-              waveformData: _waveformData,
-              isAnimating: _currentState == RecordingState.recording,
-              animationValue: _waveAnimation.value,
-            ),
-            size: Size.infinite,
-          ),
-        ),
-      );
-    }
-  }
-
-  Widget _buildActionButtons() {
-    switch (_currentState) {
-      case RecordingState.idle:
-        return _buildRecordButton();
-      case RecordingState.recording:
-        return _buildPauseButton();
-      case RecordingState.paused:
-        return _buildPausedButtons();
-    }
-  }
-
-  Widget _buildRecordButton() {
-    return GestureDetector(
-      onTap: _startRecording,
-      child: Container(
-        width: 80,
-        height: 80,
-        decoration: BoxDecoration(
-          color: Colors.red,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.red.withOpacity(0.3),
-              blurRadius: 10,
-              spreadRadius: 2,
+                  const SizedBox(height: 20),
+                ],
+              ),
             ),
           ],
         ),
@@ -368,158 +248,120 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget>
     );
   }
 
-  Widget _buildPauseButton() {
-    return GestureDetector(
-      onTap: _pauseRecording,
-      child: Container(
-        width: 80,
-        height: 80,
-        decoration: BoxDecoration(
-          color: Colors.grey[300],
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          Icons.pause,
-          size: 36,
-          color: Colors.grey[700],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPausedButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        // Cancel
-        _buildActionButton(
-          icon: Icons.close,
-          label: 'Cancel',
-          onTap: _cancelRecording,
-          backgroundColor: Colors.grey[200]!,
-          iconColor: Colors.grey[600]!,
-        ),
-        
-        // Done
-        _buildActionButton(
-          icon: Icons.check,
-          label: 'Done',
-          onTap: _finishRecording,
-          backgroundColor: Colors.indigo,
-          iconColor: Colors.white,
-          isMain: true,
-        ),
-        
-        // Continue
-        _buildActionButton(
-          icon: Icons.play_arrow,
-          label: 'Continue',
-          onTap: _continueRecording,
-          backgroundColor: Colors.grey[200]!,
-          iconColor: Colors.grey[600]!,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    required Color backgroundColor,
-    required Color iconColor,
-    bool isMain = false,
-  }) {
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: onTap,
-          child: Container(
-            width: isMain ? 80 : 60,
-            height: isMain ? 80 : 60,
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              shape: BoxShape.circle,
-              boxShadow: isMain ? [
-                BoxShadow(
-                  color: backgroundColor.withOpacity(0.3),
-                  blurRadius: 10,
-                  spreadRadius: 2,
-                ),
-              ] : null,
-            ),
-            child: Icon(
-              icon,
-              size: isMain ? 36 : 28,
-              color: iconColor,
-            ),
+  // ---- Bouton central selon la phase ----
+  Widget _buildCenterButton(RecordingPhase phase, {Key? key}) {
+    switch (phase) {
+      case RecordingPhase.idle:
+        // Rouge (start)
+        return SizedBox(
+          key: key,
+          child: GappedCircleButton(
+            size: 52, ringWidth: 3, ringGap: 3,
+            ringColor: const Color(0xFFD9DDE3),
+            gapColor: Colors.white,
+            circleColor: const Color(0xFFEF5A49),
+            label: 'Start',
+            showLabel: false,
+            onTap: () => _session.start(),
           ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-            fontWeight: FontWeight.w500,
+        );
+
+      case RecordingPhase.recording:
+        // Vert (pause)
+        return SizedBox(
+          key: key,
+          child: CircleButton(
+            size: 64,
+            circleColor: const Color(0xFF22C55E),
+            border: const BorderSide(color: Colors.blueGrey, width: 1),
+            icon: Icons.pause, iconColor: Colors.white,
+            label: 'Recording',
+            showLabel: false,
+            onTap: () => _session.pause(),
           ),
-        ),
-      ],
-    );
-  }
-}
+        );
 
-// Painter personnalisé pour la forme d'onde
-class WaveformPainter extends CustomPainter {
-  final List<double> waveformData;
-  final bool isAnimating;
-  final double animationValue;
+      case RecordingPhase.paused:
+        return SizedBox(
+          key: key,
+          child: CircleButton(
+            size: 64,
+            circleColor: const Color(0xFF3B82F6),
+            border: const BorderSide(color: Colors.blueGrey, width: 1),
+            // Utiliser l'icône conditionnellement
+            icon: _uploading ? Icons.hourglass_empty : Icons.check,
+            iconColor: Colors.white,
+            label: _uploading ? 'Uploading...' : 'Done',
+            showLabel: true,
+            onTap: _uploading ? null : () async {
+              setState(() {
+                _closing = true;
+                _uploading = true;
+              });
 
-  WaveformPainter({
-    required this.waveformData,
-    required this.isAnimating,
-    required this.animationValue,
-  });
+              try {
+                final localPath = await _session.confirmStop();
+                
+                if (localPath != null) {
+                  final remotePath = await _uploadToSupabase(localPath);
+                  
+                  if (mounted) {
+                    Navigator.pop(context, {
+                      'localPath': localPath,
+                      'remotePath': remotePath,
+                      'success': true,
+                    });
+                  }
+                } else {
+                  throw Exception('Fichier local introuvable');
+                }
+              } catch (e) {
+                setState(() {
+                  _uploading = false;
+                  _closing = false;
+                });
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (waveformData.isEmpty) return;
-
-    final paint = Paint()
-      ..color = Colors.indigo
-      ..strokeWidth = 3
-      ..strokeCap = StrokeCap.round;
-
-    final width = size.width;
-    final height = size.height;
-    final barWidth = 4.0;
-    final spacing = 2.0;
-    final totalBarWidth = barWidth + spacing;
-    final maxBars = (width / totalBarWidth).floor();
-
-    for (int i = 0; i < waveformData.length && i < maxBars; i++) {
-      final x = i * totalBarWidth;
-      final normalizedHeight = waveformData[i] * height * 0.8;
-      final barHeight = math.max(4, normalizedHeight);
-      
-      final startY = (height - barHeight) / 2;
-      final endY = startY + barHeight;
-
-      // Animation pour les barres actives
-      if (isAnimating && i >= waveformData.length - 10) {
-        paint.color = Colors.indigo.withOpacity(0.5 + 0.5 * animationValue);
-      } else {
-        paint.color = Colors.indigo;
-      }
-
-      canvas.drawLine(
-        Offset(x, startY),
-        Offset(x, endY),
-        paint,
-      );
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Erreur upload: $e'),
+                      backgroundColor: Colors.red,
+                      action: SnackBarAction(
+                        label: 'Retry',
+                        onPressed: () {
+                          Navigator.pop(context, {
+                            'localPath': _session.audio.filePath,
+                            'remotePath': null,
+                            'success': false,
+                            'error': e.toString(),
+                          });
+                        },
+                      ),
+                    ),
+                  );
+                }
+              }
+            },
+          ),
+        );
     }
   }
 
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  // ---- Indicateur de statut à gauche du timer ----
+  Widget _buildStatusIndicator(RecordingPhase phase) {
+    switch (phase) {
+      case RecordingPhase.idle:
+        return const SizedBox.shrink();
+      case RecordingPhase.recording:
+        return AnimatedBuilder(
+          animation: _blink,
+          builder: (_, __) => Opacity(
+            opacity: _blink.value,
+            child: const Icon(Icons.circle, color: Colors.red, size: 8),
+          ),
+        );
+      case RecordingPhase.paused:
+        return const Icon(Icons.circle, color: Colors.grey, size: 8);
+    }
+  }
 }
